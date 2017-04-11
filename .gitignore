@@ -12,6 +12,7 @@
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
+.idea/*
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/
@@ -222,3 +223,5 @@ buildNumber.properties
 
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
+
+husacctsonarqubeplugin\.iml
