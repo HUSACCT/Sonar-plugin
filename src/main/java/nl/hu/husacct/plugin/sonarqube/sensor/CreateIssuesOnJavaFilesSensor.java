@@ -33,6 +33,10 @@ import org.sonar.api.utils.log.Loggers;
 
 import java.util.Iterator;
 import java.util.List;
+import husacct.externalinterface.ExternalServiceProvider;
+import husacct.externalinterface.SaccCommandDTO;
+import husacct.externalinterface.ViolationImExportDTO;
+import husacct.externalinterface.ViolationReportDTO;
 
 /**
  * Generates issues on all java files at line 1. This rule
@@ -52,11 +56,13 @@ public class CreateIssuesOnJavaFilesSensor implements Sensor {
 
     @Override
     public void execute(SensorContext context) {
+        SaccCommandDTO husacctSaccComando = new SaccCommandDTO();
+
+
+        // example code 
         FileSystem fs = context.fileSystem();
         Iterable<InputFile> javaFiles = fs.inputFiles(fs.predicates().hasLanguage("java"));
         for (InputFile javaFile : javaFiles) {
-            // no need to define the severity as it is automatically set according
-            // to the configured Quality profile
             NewIssue newIssue = context.newIssue().forRule(RuleKey.of("HUSACCT", "ExampleRule1"));
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(javaFile)
