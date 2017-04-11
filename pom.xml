@@ -6,8 +6,8 @@
     <artifactId>husacct-sonarqube-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>Example Plugin for SonarQube</name>
-    <description>Example of Plugin for SonarQube: Foo Language, FooLint, Custom Metrics and MeasureComputers</description>
+    <name>HUSACCT Plugin for SonarQube</name>
+    <description>Create issues in SonarQube based on the violations detected by HUSACCT</description>
 
     <packaging>sonar-plugin</packaging>
 
