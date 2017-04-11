@@ -1,0 +1,128 @@
+<HUSACCT>
+    <!-- Property rule types -->
+    <rule>
+        <key>NamingConvention</key>
+        <name>Naming convention</name>
+        <description>The names of the elements of the module must adhere to the specified standard.</description>
+        <severity>MINOR</severity>
+        <type>CODE_SMELL</type>
+        <tag>convention</tag>
+        <tag>property</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>VisibilityConvention</key>
+        <name>Visibility convention</name>
+        <description>All elements of the module have the specified or a more restricting visibility.</description>
+        <severity>MINOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>convention</tag>
+        <tag>property</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>FacadeConvention</key>
+        <name>Facade convention</name>
+        <description>No incoming usage of the module is allowed, except via the facade.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>convention</tag>
+        <tag>property</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>InheritanceConvention</key>
+        <name>Inheritance convention</name>
+        <description>All elements of the module are sub classess of the specified super class.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>convention</tag>
+        <tag>property</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <!-- Relation rule types -->
+    <rule>
+        <key>IsNotAllowedToUse</key>
+        <name>Is not allowed to use</name>
+        <description>No element of the module is allowed to use the specified to- module.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>relation</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>BackCallBan</key>
+        <name>Back call ban (specific for layers)</name>
+        <description>No element of the layer is allowed to use a higher-level layer.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>relation</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>SkipCallBan</key>
+        <name>Skip call ban (specific for layers)</name>
+        <description>No element of the layer is allowed to use a lower layer that is more than one level lower.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>relation</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>IsAllowedToUse</key>
+        <name>Is allowed to use</name>
+        <description>All elements of the module are allowed to use the specified to-module.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>relation</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>IsOnlyAllowedToUse</key>
+        <name>Is only allowed to use</name>
+        <description>No element of the module is allowed to use other than the specified to- module(s).</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>relation</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>IsTheOnlyModuleAllowedToUse</key>
+        <name>Is the only module allowed to use</name>
+        <description>No element, outside the selected module(s) are allowed to use the specified to-module.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>relation</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+
+    <rule>
+        <key>MustUse</key>
+        <name>Must use</name>
+        <description>At least one element of the module must use the specified to- module.</description>
+        <severity>MAJOR</severity>
+        <type>VULNERABILITY</type>
+        <tag>relation</tag>
+        <remediationFunction>CONSTANT_ISSUE</remediationFunction>
+        <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
+    </rule>
+</HUSACCT>
