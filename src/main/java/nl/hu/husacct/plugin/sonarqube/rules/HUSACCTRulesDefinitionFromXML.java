@@ -1,10 +1,10 @@
 package nl.hu.husacct.plugin.sonarqube.rules;
 
-        import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 
-        import java.io.InputStream;
-        import java.nio.charset.StandardCharsets;
-        import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public final class HUSACCTRulesDefinitionFromXML implements RulesDefinition {
 
