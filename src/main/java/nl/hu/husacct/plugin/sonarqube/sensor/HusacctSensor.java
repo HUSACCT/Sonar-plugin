@@ -43,7 +43,7 @@ import java.util.Properties;
  * Generates issues on all java files at line 1. This rule
  * must be activated in the Quality profile.
  */
-public class CreateIssuesOnJavaFilesSensor implements Sensor {
+public class HusacctSensor implements Sensor {
     // for demo purpose
     private final static String TEMPHUSACCTFILE = "HUSACCT_Workspace_Current_Architecture.xml";
     private final static String LOG4JFILE = "log4j.properties";
