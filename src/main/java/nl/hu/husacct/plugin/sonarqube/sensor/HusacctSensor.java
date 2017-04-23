@@ -21,6 +21,7 @@ package nl.hu.husacct.plugin.sonarqube.sensor;
 
 import husacct.externalinterface.ExternalServiceProvider;
 import husacct.externalinterface.SaccCommandDTO;
+import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -31,13 +32,17 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.regex.Matcher;
 
 /**
  * Generates issues on all java files at line 1. This rule
@@ -46,7 +51,6 @@ import java.util.Properties;
 public class HusacctSensor implements Sensor {
     // for demo purpose
     private final static String TEMPHUSACCTFILE = "HUSACCT_Workspace_Current_Architecture.xml";
-    private final static String LOG4JFILE = "log4j.properties";
 
     @Override
     public void describe(SensorDescriptor descriptor) {
@@ -54,33 +58,39 @@ public class HusacctSensor implements Sensor {
         // optimisation to disable execution of sensor if project does
         // not contain Java files or if the example rule is not activated
         // in the Quality profile
-        // descriptor.onlyOnLanguage("java");
+        descriptor.onlyOnLanguage("java");
         descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY);
     }
 
     @Override
     public void execute(SensorContext context) {
-        System.out.println("Dikzak");
-        FileSystem fs = context.fileSystem();
-        System.out.println("Tok TOk TOk ");
-        SaccCommandDTO saccCommandDTO = createSacCommand(context);
+        String emptyImportFile = createImportFile(context);
+        SaccCommandDTO saccCommandDTO = createSacCommand(context, emptyImportFile);
         ExternalServiceProvider externalServiceProvider;
-        System.out.println("SacCommand is er");
         externalServiceProvider = ExternalServiceProvider.getInstance(getLog4JProperties());
-        System.out.println("Yay!! :D ");
-        externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO);
+        ViolationImExportDTO[] allViolations =  externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO).getAllViolations();
+        Loggers.get(getClass()).info("Number of violations found:  " + allViolations.length);
 
-        // example code
-        Iterable<InputFile> javaFiles = fs.inputFiles(fs.predicates().hasLanguage("java"));
-        for (InputFile javaFile : javaFiles) {
-            NewIssue newIssue = context.newIssue().forRule(RuleKey.of("HUSACCT", "MustUse"));
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(javaFile)
-                    .at(javaFile.selectLine(1))
-                    .message("You can't do anything. This is first line!");
-            newIssue.at(primaryLocation);
-            newIssue.save();
+        Loggers.get(getClass()).info("HUSACCT finished, starting to creating sonar issues");
+        for (ViolationImExportDTO violation : allViolations) {
+            String violationFile = formatFilePath(violation.getFrom()) + ".java";
+
+            InputFile violationInputFile = context.fileSystem().inputFile(new fileWithPath(violationFile));
+            NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY,violation.getRuleType()));
+            NewIssueLocation location = issue.newLocation()
+                    .on(violationInputFile)
+                    .at(violationInputFile.selectLine(violation.getLine()))
+                    .message(violation.getMessage());
+            issue.at(location);
+            issue.save();
         }
+    }
+
+    private String formatFilePath(String file) {
+        String returnValue = file.replace('.', File.separatorChar);
+        returnValue = returnValue.replace('\\', File.separatorChar);
+        returnValue = returnValue.replace('/', File.separatorChar);
+        return returnValue;
     }
 
     private Properties getLog4JProperties() {
@@ -99,13 +109,37 @@ public class HusacctSensor implements Sensor {
         return properties;
     }
 
-    private SaccCommandDTO createSacCommand(SensorContext context) {
+    private SaccCommandDTO createSacCommand(SensorContext context, String emptyImportFile) {
         ArrayList<String> javaPaths = getAllSourcePaths(context.fileSystem());
+        File SACCFile = getHUSACCTFile(context).file();
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
-        getAllXmlFiles(context);
-        saccCommandDTO.setHusacctWorkspaceFile(getHUSACCTFile(context).file().getAbsolutePath());
+        Loggers.get(getClass()).info(String.format("Found architecture file: %s", SACCFile));
+        saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
         saccCommandDTO.setSourceCodePaths(javaPaths);
+        saccCommandDTO.setImportFilePreviousViolations(emptyImportFile);
         return saccCommandDTO;
+    }
+
+
+    /*
+        This function is neede because, HUSACCT expects an import file.
+     */
+    private String createImportFile(SensorContext context) {
+        String baserDir = context.fileSystem().baseDir().getAbsolutePath();
+        String fileName = "DummyImportFile.xml";
+
+        try{
+            PrintWriter writer = new PrintWriter(baserDir + fileName, "UTF-8");
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<report></report>");
+            writer.close();
+        } catch (IOException e) {
+            // do something
+        }
+
+        Loggers.get(getClass()).info("Created dummy import file");
+        return baserDir + fileName;
+
     }
 
     private ArrayList<String> getAllSourcePaths(FileSystem fs) {
@@ -123,7 +157,7 @@ public class HusacctSensor implements Sensor {
     private InputFile getHUSACCTFile(SensorContext context) {
         FileSystem fs = context.fileSystem();
 
-        return fs.inputFile(new HUSACCTPredicate(TEMPHUSACCTFILE));
+        return fs.inputFile(new fileWithName(TEMPHUSACCTFILE));
     }
 
     private Iterable<InputFile> getAllXmlFiles(SensorContext context) {
@@ -148,9 +182,25 @@ public class HusacctSensor implements Sensor {
         }
     }
 
-    class HUSACCTPredicate implements FilePredicate {
+    class fileWithPath implements  FilePredicate {
+        private String absolutePath;
+        public fileWithPath(String absolutePath) { this.absolutePath = absolutePath;}
+
+        @Override
+        public boolean apply(InputFile inputFile) {
+            String inputFileAbsolutePath = formatFilePath(
+                    inputFile.absolutePath().substring(0, inputFile.absolutePath().length() -5))
+                    + ".java";
+            if(inputFileAbsolutePath.endsWith(absolutePath)) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    class fileWithName implements FilePredicate {
         private String fileName;
-        public HUSACCTPredicate(String fileName) {
+        public  fileWithName(String fileName) {
             this.fileName = fileName;
         }
 
