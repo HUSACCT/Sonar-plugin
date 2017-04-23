@@ -1,7 +1,13 @@
 package nl.hu.husacct.plugin.sonarqube.util;
 
-/**
- * Created by Nigel on 23-4-2017.
- */
+import java.io.File;
+
 public class FileFormatter {
+
+    public static String formatFilePath(String file) {
+        String returnValue = file.replace('.', File.separatorChar);
+        returnValue = returnValue.replace('\\', File.separatorChar);
+        returnValue = returnValue.replace('/', File.separatorChar);
+        return returnValue;
+    }
 }

@@ -23,8 +23,8 @@ import husacct.externalinterface.ExternalServiceProvider;
 import husacct.externalinterface.SaccCommandDTO;
 import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FileSystem;
+import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
+import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -32,25 +32,25 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Properties;
-import java.util.regex.Matcher;
+
+import static nl.hu.husacct.plugin.sonarqube.util.FileFormatter.formatFilePath;
+import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JProperties;
 
 /**
- * Generates issues on all java files at line 1. This rule
  * must be activated in the Quality profile.
  */
 public class HusacctSensor implements Sensor {
     // for demo purpose
     private final static String TEMPHUSACCTFILE = "HUSACCT_Workspace_Current_Architecture.xml";
+    private final static FileFinder fileFinder = new FileFinder();
 
     @Override
     public void describe(SensorDescriptor descriptor) {
@@ -68,15 +68,15 @@ public class HusacctSensor implements Sensor {
         SaccCommandDTO saccCommandDTO = createSacCommand(context, emptyImportFile);
         ExternalServiceProvider externalServiceProvider;
         externalServiceProvider = ExternalServiceProvider.getInstance(getLog4JProperties());
-        ViolationImExportDTO[] allViolations =  externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO).getAllViolations();
+        ViolationImExportDTO[] allViolations = externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO).getAllViolations();
         Loggers.get(getClass()).info("Number of violations found:  " + allViolations.length);
 
         Loggers.get(getClass()).info("HUSACCT finished, starting to creating sonar issues");
         for (ViolationImExportDTO violation : allViolations) {
             String violationFile = formatFilePath(violation.getFrom()) + ".java";
 
-            InputFile violationInputFile = context.fileSystem().inputFile(new fileWithPath(violationFile));
-            NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY,violation.getRuleType()));
+            InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile));
+            NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
             NewIssueLocation location = issue.newLocation()
                     .on(violationInputFile)
                     .at(violationInputFile.selectLine(violation.getLine()))
@@ -84,36 +84,18 @@ public class HusacctSensor implements Sensor {
             issue.at(location);
             issue.save();
         }
-    }
-
-    private String formatFilePath(String file) {
-        String returnValue = file.replace('.', File.separatorChar);
-        returnValue = returnValue.replace('\\', File.separatorChar);
-        returnValue = returnValue.replace('/', File.separatorChar);
-        return returnValue;
-    }
-
-    private Properties getLog4JProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("log4j.rootLogger", "debug, stdout, R");
-        properties.setProperty("log4j.appender.stdout", "org.apache.log4j.ConsoleAppender");
-        properties.setProperty("log4j.appender.stdout.layout", "org.apache.log4j.PatternLayout");
-        properties.setProperty("log4j.appender.stdout.layout.ConversionPattern", "%5p [%t] (%F:%L) - %m%n");
-        properties.setProperty("log4j.appender.R", "org.apache.log4j.RollingFileAppender");
-        properties.setProperty("log4j.appender.R.File", "log/husacct.log");
-        properties.setProperty("log4j.appender.R.MaxFileSize", "100KB");
-        properties.setProperty("log4j.appender.R.MaxBackupIndex", "1");
-        properties.setProperty("log4j.appender.R.layout", "org.apache.log4j.PatternLayout");
-        properties.setProperty("log4j.appender.R.layout.ConversionPattern", "%p %t %c - %m%n");
-
-        return properties;
+        try {
+            Files.delete(Paths.get(emptyImportFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private SaccCommandDTO createSacCommand(SensorContext context, String emptyImportFile) {
-        ArrayList<String> javaPaths = getAllSourcePaths(context.fileSystem());
-        File SACCFile = getHUSACCTFile(context).file();
+        ArrayList<String> javaPaths = fileFinder.getAllSourcePaths(context.fileSystem());
+        File SACCFile = fileFinder.getHUSACCTFile(context, TEMPHUSACCTFILE).file();
+
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
-        Loggers.get(getClass()).info(String.format("Found architecture file: %s", SACCFile));
         saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
         saccCommandDTO.setSourceCodePaths(javaPaths);
         saccCommandDTO.setImportFilePreviousViolations(emptyImportFile);
@@ -128,7 +110,7 @@ public class HusacctSensor implements Sensor {
         String baserDir = context.fileSystem().baseDir().getAbsolutePath();
         String fileName = "DummyImportFile.xml";
 
-        try{
+        try {
             PrintWriter writer = new PrintWriter(baserDir + fileName, "UTF-8");
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<report></report>");
@@ -140,77 +122,6 @@ public class HusacctSensor implements Sensor {
         Loggers.get(getClass()).info("Created dummy import file");
         return baserDir + fileName;
 
-    }
-
-    private ArrayList<String> getAllSourcePaths(FileSystem fs) {
-        ArrayList<String> javaPaths = new ArrayList<>();
-        for(InputFile file : fs.inputFiles(fs.predicates().hasLanguage("java"))) {
-            String path = file.path().toString().substring(0, file.path().toString().lastIndexOf(File.separator));
-            if(!javaPaths.contains(path)) {
-                javaPaths.add(path);
-                Loggers.get(getClass()).info(String.format("Found path: %s", path));
-            }
-        }
-        return javaPaths;
-    }
-
-    private InputFile getHUSACCTFile(SensorContext context) {
-        FileSystem fs = context.fileSystem();
-
-        return fs.inputFile(new fileWithName(TEMPHUSACCTFILE));
-    }
-
-    private Iterable<InputFile> getAllXmlFiles(SensorContext context) {
-        FileSystem fs = context.fileSystem();
-        Iterable<InputFile> xmlFiles = fs.inputFiles(new XmlPredicate());
-        for (InputFile input : xmlFiles) {
-            Loggers.get(getClass()).info(String.format("Found xml file: %s", input.file().getName()));
-        }
-        return xmlFiles;
-    }
-
-
-
-    class XmlPredicate implements FilePredicate {
-
-        @Override
-        public boolean apply(InputFile inputFile) {
-            if(inputFile.file().getName().endsWith(".xml")) {
-                return true;
-            }
-            return false;
-        }
-    }
-
-    class fileWithPath implements  FilePredicate {
-        private String absolutePath;
-        public fileWithPath(String absolutePath) { this.absolutePath = absolutePath;}
-
-        @Override
-        public boolean apply(InputFile inputFile) {
-            String inputFileAbsolutePath = formatFilePath(
-                    inputFile.absolutePath().substring(0, inputFile.absolutePath().length() -5))
-                    + ".java";
-            if(inputFileAbsolutePath.endsWith(absolutePath)) {
-                return true;
-            }
-            return false;
-        }
-    }
-
-    class fileWithName implements FilePredicate {
-        private String fileName;
-        public  fileWithName(String fileName) {
-            this.fileName = fileName;
-        }
-
-        @Override
-        public boolean apply(InputFile inputFile) {
-            if(inputFile.file().getName().equals(fileName)) {
-                return true;
-            }
-            return false;
-        }
     }
 }
 
