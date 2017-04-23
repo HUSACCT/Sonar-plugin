@@ -61,7 +61,7 @@
     </rule>
 
     <rule>
-        <key>BackCallBan</key>
+        <key>IsNotAllowedToMakeBackCall</key>
         <name>Back call ban (specific for layers)</name>
         <description>No element of the layer is allowed to use a higher-level layer.</description>
         <severity>MAJOR</severity>
@@ -72,7 +72,7 @@
     </rule>
 
     <rule>
-        <key>SkipCallBan</key>
+        <key>IsNotAllowedToMakeSkipCall</key>
         <name>Skip call ban (specific for layers)</name>
         <description>No element of the layer is allowed to use a lower layer that is more than one level lower.</description>
         <severity>MAJOR</severity>
