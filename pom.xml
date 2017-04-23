@@ -151,5 +151,14 @@
         </plugins>
     </build>
 
+    <developers>
+        <developer>
+            <id>NigelH</id>
+            <name>Nigel van Hattum</name>
+            <email>nigelvh@hotmail.com</email>
+            <url>https://nl.linkedin.com/in/nigel-van-hattum</url>
+        </developer>
+    </developers>
+
 
 </project>
