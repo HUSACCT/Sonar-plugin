@@ -64,32 +64,38 @@ public class HusacctSensor implements Sensor {
 
     @Override
     public void execute(SensorContext context) {
+        // create dummy import file
         String emptyImportFile = createImportFile(context);
+
         SaccCommandDTO saccCommandDTO = createSacCommand(context, emptyImportFile);
-        ExternalServiceProvider externalServiceProvider;
-        externalServiceProvider = ExternalServiceProvider.getInstance(getLog4JProperties());
-        ViolationImExportDTO[] allViolations = externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO).getAllViolations();
-        Loggers.get(getClass()).info("Number of violations found:  " + allViolations.length);
+        ExternalServiceProvider externalServiceProvider = ExternalServiceProvider.getInstance(getLog4JProperties());
+        ViolationImExportDTO[] allViolations = externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO)
+                .getAllViolations();
+
 
         Loggers.get(getClass()).info("HUSACCT finished, starting to creating sonar issues");
-        for (ViolationImExportDTO violation : allViolations) {
-            String violationFile = formatFilePath(violation.getFrom()) + ".java";
 
-            InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile));
-            NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
-            NewIssueLocation location = issue.newLocation()
-                    .on(violationInputFile)
-                    .at(violationInputFile.selectLine(violation.getLine()))
-                    .message(violation.getMessage());
-            issue.at(location);
-            issue.save();
+        for (ViolationImExportDTO violation : allViolations) {
+            createIssueFromViolation(context, violation);
         }
-        try {
-            Files.delete(Paths.get(emptyImportFile));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        removeDummyImportFile(emptyImportFile);
     }
+
+    private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
+        // getFrom needs formatting before it can be used to find an InputFile.
+        String violationFile = formatFilePath(violation.getFrom()) + ".java";
+        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile));
+
+        NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
+        NewIssueLocation location = issue.newLocation()
+                .on(violationInputFile)
+                .at(violationInputFile.selectLine(violation.getLine()))
+                .message(violation.getMessage());
+        issue.at(location);
+        issue.save();
+    }
+
 
     private SaccCommandDTO createSacCommand(SensorContext context, String emptyImportFile) {
         ArrayList<String> javaPaths = fileFinder.getAllSourcePaths(context.fileSystem());
@@ -122,6 +128,15 @@ public class HusacctSensor implements Sensor {
         Loggers.get(getClass()).info("Created dummy import file");
         return baserDir + fileName;
 
+    }
+
+    private void removeDummyImportFile(String emptyImportFile) {
+        try {
+            Files.delete(Paths.get(emptyImportFile));
+            Loggers.get(getClass()).info("Dummy import file has successfully deleted.");
+        } catch (IOException e) {
+            Loggers.get(getClass()).warn("Coudl not find dummy import file. Maybe it has been deleted manually?");
+        }
     }
 }
 
