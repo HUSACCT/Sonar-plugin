@@ -19,14 +19,16 @@
 
     <repositories>
         <repository>
-            <id>local-project-repository</id>
-            <url>file:///${project.basedir}/Resources/repo</url>
-        </repository>
-        <repository>
             <id>central</id>
             <name>Central Repository</name>
             <url>http://repo.maven.apache.org/maven2</url>
         </repository>
+        <!-- needed for HUSACCT -->
+        <repository>
+            <id>local-project-repository</id>
+            <url>file:///${project.basedir}/Resources/repo</url>
+        </repository>
+        <!-- Needed for JHotdraw-->
         <repository>
             <id>clojars</id>
             <url>http://clojars.org/repo</url>
