@@ -10,7 +10,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import java.io.File;
 import java.io.IOException;
 
@@ -35,20 +34,8 @@ public class XmlParser {
 
         String workspacePath = findWorkspacePath(mavenPlugin);
 
-        return formatWorkspaceFile(workspacePath);
+        return FileFormatter.formatWorkspaceFile(workspacePath);
 
-    }
-
-    private static String formatWorkspaceFile(String workspacePath) {
-        if(workspacePath.endsWith(".xml")) {
-            workspacePath = workspacePath.substring(0, workspacePath.lastIndexOf('.'));
-        }
-
-        String formattedWorkspacePath = FileFormatter.formatFilePath(workspacePath);
-
-        String formattedWorkspaceFile = formattedWorkspacePath.substring(0, formattedWorkspacePath.lastIndexOf(File.separator)) + ".xml";
-        Loggers.get(LOGGERNAME).debug(String.format("Found HUSACCT file from pom.xml: %s", formattedWorkspaceFile));
-        return formattedWorkspaceFile;
     }
 
     private static String findWorkspacePath(Element mavenPlugin) {

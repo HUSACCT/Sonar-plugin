@@ -25,6 +25,7 @@ import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
 import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
+import nl.hu.husacct.plugin.sonarqube.util.XmlParser;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -48,8 +49,7 @@ import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JP
  * must be activated in the Quality profile.
  */
 public class HusacctSensor implements Sensor {
-    // for demo purpose
-    private final static String TEMPHUSACCTFILE = "HUSACCT_Workspace_Current_Architecture.xml";
+
     private final static FileFinder fileFinder = new FileFinder();
 
     @Override
@@ -99,13 +99,28 @@ public class HusacctSensor implements Sensor {
 
     private SaccCommandDTO createSacCommand(SensorContext context, String emptyImportFile) {
         ArrayList<String> javaPaths = fileFinder.getAllSourcePaths(context.fileSystem());
-        File SACCFile = fileFinder.getHUSACCTFile(context, TEMPHUSACCTFILE).file();
+        String HUSACCTFile = findHUSACCTFile(context);
+        File SACCFile = fileFinder.getHUSACCTFile(context, HUSACCTFile).file();
 
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
         saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
         saccCommandDTO.setSourceCodePaths(javaPaths);
         saccCommandDTO.setImportFilePreviousViolations(emptyImportFile);
         return saccCommandDTO;
+    }
+
+    private String findHUSACCTFile(SensorContext context ) {
+        FileFinder fF = new FileFinder();
+        Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
+        for(InputFile xmlFile : allXmlFiles) {
+            if(xmlFile.file().getName().equals("pom.xml")) {
+                return XmlParser.getHUSACCTWorkspaceFileFromPom(xmlFile.file());
+            }
+        }
+
+
+        Loggers.get(getClass()).error("Cannot find HUSACCT file!");
+        throw new RuntimeException("Cannot find HUSACCT file!");
     }
 
 

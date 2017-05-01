@@ -1,5 +1,7 @@
 package nl.hu.husacct.plugin.sonarqube.util;
 
+import org.sonar.api.utils.log.Loggers;
+
 import java.io.File;
 
 public class FileFormatter {
@@ -9,5 +11,17 @@ public class FileFormatter {
         returnValue = returnValue.replace('\\', File.separatorChar);
         returnValue = returnValue.replace('/', File.separatorChar);
         return returnValue;
+    }
+
+    public static String formatWorkspaceFile(String workspacePath) {
+        if(workspacePath.endsWith(".xml")) {
+            workspacePath = workspacePath.substring(0, workspacePath.lastIndexOf('.'));
+        }
+
+        String formattedWorkspacePath = FileFormatter.formatFilePath(workspacePath);
+
+        String formattedWorkspaceFile = formattedWorkspacePath.substring(formattedWorkspacePath.lastIndexOf(File.separator)+1) + ".xml";
+        Loggers.get("XmlParser").debug(String.format("Found HUSACCT file from pom.xml: %s", formattedWorkspaceFile));
+        return formattedWorkspaceFile;
     }
 }
