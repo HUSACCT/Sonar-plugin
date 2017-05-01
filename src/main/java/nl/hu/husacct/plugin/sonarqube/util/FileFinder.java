@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class FileFinder {
 
-    public ArrayList<String> getAllSourcePaths(FileSystem fs) {
+    public ArrayList<String> getAllJavaSourcePaths(FileSystem fs) {
         ArrayList<String> javaPaths = new ArrayList<>();
         for (InputFile file : fs.inputFiles(fs.predicates().hasLanguage("java"))) {
             String path = file.path().toString().substring(0, file.path().toString().lastIndexOf(File.separator));

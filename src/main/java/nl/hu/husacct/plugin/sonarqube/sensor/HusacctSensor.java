@@ -26,6 +26,7 @@ import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
 import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
 import nl.hu.husacct.plugin.sonarqube.util.XmlParser;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -51,6 +52,7 @@ import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JP
 public class HusacctSensor implements Sensor {
 
     private final static FileFinder fileFinder = new FileFinder();
+    private final static XmlParser xmlParser = new XmlParser();
 
     @Override
     public void describe(SensorDescriptor descriptor) {
@@ -64,7 +66,8 @@ public class HusacctSensor implements Sensor {
 
     @Override
     public void execute(SensorContext context) {
-        // create dummy import file
+        // create dummy importfile otherwise HUSACCT will not work.
+        // file is not needed because Sonar keeps track of all the current issues, and refreshes them accordingly.
         String emptyImportFile = createImportFile(context);
 
         SaccCommandDTO saccCommandDTO = createSacCommand(context, emptyImportFile);
@@ -96,29 +99,41 @@ public class HusacctSensor implements Sensor {
         issue.save();
     }
 
-
-    private SaccCommandDTO createSacCommand(SensorContext context, String emptyImportFile) {
-        ArrayList<String> javaPaths = fileFinder.getAllSourcePaths(context.fileSystem());
+    /**
+     *  Create a sacCommandDTO from the sensorcontext and importfile path.
+     *  finds all paths with java code @see {@link FileFinder#getAllJavaSourcePaths(FileSystem)}
+     *  finds the HUSACCT xml file @see {@link #findHUSACCTFile(SensorContext)}
+     * @param importFile absolute path to import file with old violations
+     */
+    private SaccCommandDTO createSacCommand(SensorContext context, String importFile) {
+        ArrayList<String> javaPaths = fileFinder.getAllJavaSourcePaths(context.fileSystem());
         String HUSACCTFile = findHUSACCTFile(context);
         File SACCFile = fileFinder.getHUSACCTFile(context, HUSACCTFile).file();
 
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
         saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
         saccCommandDTO.setSourceCodePaths(javaPaths);
-        saccCommandDTO.setImportFilePreviousViolations(emptyImportFile);
+        saccCommandDTO.setImportFilePreviousViolations(importFile);
         return saccCommandDTO;
     }
 
+    /**
+     * Searches the HUSACCT workspace file fromd different sources
+     * for java: pom.xml (HUSACCT maven plugin and properties)
+     * @return absolute path to the file
+     */
     private String findHUSACCTFile(SensorContext context ) {
+        String return_value = null;
         FileFinder fF = new FileFinder();
         Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
         for(InputFile xmlFile : allXmlFiles) {
             if(xmlFile.file().getName().equals("pom.xml")) {
-                return XmlParser.getHUSACCTWorkspaceFileFromPom(xmlFile.file());
+                return_value = xmlParser.getHUSACCTWorkspaceFileFromPom(xmlFile.file());
             }
         }
-
-
+        if(return_value != null) {
+            return return_value;
+        }
         Loggers.get(getClass()).error("Cannot find HUSACCT file!");
         throw new RuntimeException("Cannot find HUSACCT file!");
     }
@@ -150,7 +165,7 @@ public class HusacctSensor implements Sensor {
             Files.delete(Paths.get(emptyImportFile));
             Loggers.get(getClass()).info("Dummy import file has successfully deleted.");
         } catch (IOException e) {
-            Loggers.get(getClass()).warn("Coudl not find dummy import file. Maybe it has been deleted manually?");
+            Loggers.get(getClass()).warn("Could not find dummy import file. Maybe it has been deleted manually?");
         }
     }
 }
