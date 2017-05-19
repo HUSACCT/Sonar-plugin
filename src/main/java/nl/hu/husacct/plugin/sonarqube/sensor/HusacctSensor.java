@@ -78,7 +78,8 @@ public class HusacctSensor implements Sensor {
                 .getAllViolations();
 
 
-        Loggers.get(getClass()).info("HUSACCT finished, starting to creating sonar issues");
+        Loggers.get(getClass()).info("HUSACCT finished, starting to creating sonar issues.");
+        Loggers.get(getClass()).info(String.format("Found %d issues", allViolations.length));
 
         for (ViolationImExportDTO violation : allViolations) {
             createIssueFromViolation(context, violation);
