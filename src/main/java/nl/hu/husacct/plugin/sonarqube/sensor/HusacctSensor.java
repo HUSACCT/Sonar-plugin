@@ -22,6 +22,8 @@ package nl.hu.husacct.plugin.sonarqube.sensor;
 import husacct.externalinterface.ExternalServiceProvider;
 import husacct.externalinterface.SaccCommandDTO;
 import husacct.externalinterface.ViolationImExportDTO;
+import nl.hu.husacct.plugin.sonarqube.exceptions.HusacctSonarException;
+import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
 import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
@@ -135,7 +137,7 @@ public class HusacctSensor implements Sensor {
             return return_value;
         }
         Loggers.get(getClass()).error("Cannot find HUSACCT file!");
-        throw new RuntimeException("Cannot find HUSACCT file!");
+        throw new WorkspaceFileException("Cannot find HUSACCT file!");
     }
 
 
@@ -152,7 +154,7 @@ public class HusacctSensor implements Sensor {
                     "<report></report>");
             writer.close();
         } catch (IOException e) {
-            // do something
+            throw new HusacctSonarException("Cannot create dummy import file." + e.getCause());
         }
 
         Loggers.get(getClass()).info("Created dummy import file");
