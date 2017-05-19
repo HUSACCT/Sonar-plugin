@@ -14,7 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 
-public class XmlParser {
+public class PomParser {
 
     private static final String HUSACCTMAVENPLUGINARTIFACT = "husacct-maven-plugin";
     private static final String HUSACCTWORKSPACENODE = "workspacePath";

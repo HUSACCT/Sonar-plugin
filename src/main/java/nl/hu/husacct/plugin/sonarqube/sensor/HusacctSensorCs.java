@@ -1,23 +1,5 @@
-/*
- * Example Plugin for SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 package nl.hu.husacct.plugin.sonarqube.sensor;
+
 
 import husacct.externalinterface.ExternalServiceProvider;
 import husacct.externalinterface.SaccCommandDTO;
@@ -44,10 +26,7 @@ import java.util.ArrayList;
 import static nl.hu.husacct.plugin.sonarqube.util.FileFormatter.formatFilePath;
 import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JProperties;
 
-/**
- * must be activated in the Quality profile.
- */
-public class HusacctSensorJava implements Sensor {
+public class HusacctSensorCs implements Sensor{
 
     private final static FileFinder fileFinder = new FileFinder();
     private final static PomParser pomParser = new PomParser();
@@ -59,7 +38,7 @@ public class HusacctSensorJava implements Sensor {
         // optimisation to disable execution of sensor if project does
         // not contain Java files or if the example rule is not activated
         // in the Quality profile
-        descriptor.onlyOnLanguage("java");
+        descriptor.onlyOnLanguage("cs");
         descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY);
     }
 
@@ -87,7 +66,7 @@ public class HusacctSensorJava implements Sensor {
 
     private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
         // getFrom needs formatting before it can be used to find an InputFile.
-        String violationFile = formatFilePath(violation.getFrom()) + ".java";
+        String violationFile = formatFilePath(violation.getFrom()) + ".cs";
         InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile));
 
         NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
@@ -105,14 +84,15 @@ public class HusacctSensorJava implements Sensor {
      *  finds the HUSACCT xml file @see {@link #findHUSACCTFile(SensorContext)}
      * @param importFile absolute path to import file with old violations
      */
+    //TODO: create util function.
     private SaccCommandDTO createSacCommand(SensorContext context, String importFile) {
-        ArrayList<String> javaPaths = fileFinder.getAllJavaSourcePaths(context.fileSystem());
+        ArrayList<String> csPaths = fileFinder.getAllCsSourcePaths(context.fileSystem());
         String HUSACCTFile = findHUSACCTFile(context);
         File SACCFile = fileFinder.getHUSACCTFile(context, HUSACCTFile).file();
 
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
         saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
-        saccCommandDTO.setSourceCodePaths(javaPaths);
+        saccCommandDTO.setSourceCodePaths(csPaths);
         saccCommandDTO.setImportFilePreviousViolations(importFile);
         return saccCommandDTO;
     }
@@ -127,8 +107,8 @@ public class HusacctSensorJava implements Sensor {
         FileFinder fF = new FileFinder();
         Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
         for(InputFile xmlFile : allXmlFiles) {
-            if(xmlFile.file().getName().equals("pom.xml")) {
-                return_value = pomParser.getHUSACCTWorkspaceFileFromPom(xmlFile.file());
+            if(xmlFile.file().getName().equals("HUSACCT.properties.xml")) {
+                // TODO: create function to get workspace.
             }
         }
         if(return_value != null) {
@@ -137,6 +117,4 @@ public class HusacctSensorJava implements Sensor {
         Loggers.get(getClass()).error("Cannot find HUSACCT file!");
         throw new WorkspaceFileException("Cannot find HUSACCT file!");
     }
-
 }
-
