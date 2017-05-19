@@ -6,10 +6,7 @@ import husacct.externalinterface.SaccCommandDTO;
 import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
-import nl.hu.husacct.plugin.sonarqube.util.DummyImportFile;
-import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
-import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
-import nl.hu.husacct.plugin.sonarqube.util.PomParser;
+import nl.hu.husacct.plugin.sonarqube.util.*;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -29,7 +26,7 @@ import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JP
 public class HusacctSensorCs implements Sensor{
 
     private final static FileFinder fileFinder = new FileFinder();
-    private final static PomParser pomParser = new PomParser();
+    private final static HusacctPropertiesXmlParser xmlParser = new HusacctPropertiesXmlParser();
     private final static DummyImportFile dummyImport = new DummyImportFile();
 
     @Override
@@ -99,7 +96,7 @@ public class HusacctSensorCs implements Sensor{
 
     /**
      * Searches the HUSACCT workspace file fromd different sources
-     * for java: pom.xml (HUSACCT maven plugin and properties)
+     * for c#: look for the HUSACCT.properties.xml file with a element called workspace.
      * @return absolute path to the file
      */
     private String findHUSACCTFile(SensorContext context ) {
@@ -108,7 +105,7 @@ public class HusacctSensorCs implements Sensor{
         Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
         for(InputFile xmlFile : allXmlFiles) {
             if(xmlFile.file().getName().equals("HUSACCT.properties.xml")) {
-                // TODO: create function to get workspace.
+                return_value = xmlParser.getHUSACCTWorkspaceFileFromHusacctPropertiesXml(xmlFile.file());
             }
         }
         if(return_value != null) {
