@@ -65,15 +65,6 @@ public class HusacctSensorJava implements Sensor {
 
     @Override
     public void execute(SensorContext context) {
-        try {
-            doExecute(context);
-
-        } catch (Exception e) {
-            Loggers.get(getClass()).error(e.getMessage());
-        }
-    }
-
-    private void doExecute(SensorContext context) {
         // create dummy importfile otherwise HUSACCT will not work.
         // file is not needed because Sonar keeps track of all the current issues, and refreshes them accordingly.
         String emptyImportFile = dummyImport.createImportFile(context);
