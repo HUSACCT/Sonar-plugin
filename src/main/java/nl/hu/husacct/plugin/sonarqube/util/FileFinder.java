@@ -22,6 +22,18 @@ public class FileFinder {
         return javaPaths;
     }
 
+    public ArrayList<String> getAllCsSourcePaths(FileSystem fs) {
+        ArrayList<String> javaPaths = new ArrayList<>();
+        for (InputFile file : fs.inputFiles(fs.predicates().hasLanguage("cz"))) {
+            String path = file.path().toString().substring(0, file.path().toString().lastIndexOf(File.separator));
+            if (!javaPaths.contains(path)) {
+                javaPaths.add(path);
+                Loggers.get(getClass()).debug(String.format("Found path: %s", path));
+            }
+        }
+        return javaPaths;
+    }
+
     public InputFile getHUSACCTFile(SensorContext context, String fileName) {
         FileSystem fs = context.fileSystem();
         InputFile HUSACCTFile = fs.inputFile(new FilePredicates.fileWithName(fileName));

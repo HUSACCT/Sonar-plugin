@@ -21,7 +21,7 @@ public class FileFormatter {
         String formattedWorkspacePath = FileFormatter.formatFilePath(workspacePath);
 
         String formattedWorkspaceFile = formattedWorkspacePath.substring(formattedWorkspacePath.lastIndexOf(File.separator)+1) + ".xml";
-        Loggers.get("XmlParser").debug(String.format("Found HUSACCT file from pom.xml: %s", formattedWorkspaceFile));
+        Loggers.get("PomParser").debug(String.format("Found HUSACCT file from pom.xml: %s", formattedWorkspaceFile));
         return formattedWorkspaceFile;
     }
 }
