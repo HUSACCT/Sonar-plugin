@@ -60,7 +60,7 @@ public class HusacctSensorCs implements Sensor{
 
         dummyImport.removeDummyImportFile(emptyImportFile);
     }
-
+    //TODO: create util function.
     private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
         // getFrom needs formatting before it can be used to find an InputFile.
         String violationFile = formatFilePath(violation.getFrom()) + ".cs";
@@ -99,6 +99,7 @@ public class HusacctSensorCs implements Sensor{
      * for c#: look for the HUSACCT.properties.xml file with a element called workspace.
      * @return absolute path to the file
      */
+    // TODO: create util function.
     private String findHUSACCTFile(SensorContext context ) {
         String return_value = null;
         FileFinder fF = new FileFinder();
