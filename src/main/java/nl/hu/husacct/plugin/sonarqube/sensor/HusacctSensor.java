@@ -142,7 +142,7 @@ public class HusacctSensor implements Sensor {
 
 
     /*
-        This function is neede because, HUSACCT expects an import file.
+        This function is needed because, HUSACCT expects an import file.
      */
     private String createImportFile(SensorContext context) {
         String baserDir = context.fileSystem().baseDir().getAbsolutePath();
