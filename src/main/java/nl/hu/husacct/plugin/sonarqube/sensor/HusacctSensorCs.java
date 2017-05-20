@@ -2,7 +2,7 @@ package nl.hu.husacct.plugin.sonarqube.sensor;
 
 
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
-import nl.hu.husacct.plugin.sonarqube.util.*;
+import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.xmlparser.HusacctPropertiesXmlParser;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;

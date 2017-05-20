@@ -1,7 +1,6 @@
 package nl.hu.husacct.plugin.sonarqube.util.xmlparser;
 
 import nl.hu.husacct.plugin.sonarqube.util.FileFormatter;
-import nl.hu.husacct.plugin.sonarqube.util.xmlparser.XmlParser;
 import org.sonar.api.utils.log.Loggers;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
