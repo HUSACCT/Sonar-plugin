@@ -23,7 +23,7 @@ public class HusacctPropertiesXmlParser {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             document = dBuilder.parse(xmlFile);
         } catch (IOException | ParserConfigurationException | SAXException e) {
-            Loggers.get(getClass()).error(String.format("Error reading pom.xml: %s", e.getMessage()));
+            Loggers.get(getClass()).error(String.format("Error reading %s: %s", xmlFile.getName(), e.getMessage()));
             throw new WorkspaceFileException(e);
         }
 
