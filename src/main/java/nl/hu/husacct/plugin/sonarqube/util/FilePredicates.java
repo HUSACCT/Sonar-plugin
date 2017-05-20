@@ -6,6 +6,8 @@ import org.sonar.api.batch.fs.InputFile;
 
 public class FilePredicates {
 
+    private FilePredicates() {}
+
     public static class XmlPredicate implements FilePredicate {
 
         @Override
@@ -17,9 +19,9 @@ public class FilePredicates {
         }
     }
 
-    public static class fileWithPath implements  FilePredicate {
+    public static class JavaFileWithPath implements  FilePredicate {
         private String absolutePath;
-        public fileWithPath(String absolutePath) { this.absolutePath = absolutePath;}
+        public JavaFileWithPath(String absolutePath) { this.absolutePath = absolutePath;}
 
         @Override
         public boolean apply(InputFile inputFile) {
@@ -33,9 +35,9 @@ public class FilePredicates {
         }
     }
 
-    public static class fileWithName implements FilePredicate {
+    public static class FileWithName implements FilePredicate {
         private String fileName;
-        public  fileWithName(String fileName) {
+        public FileWithName(String fileName) {
             this.fileName = fileName;
         }
 

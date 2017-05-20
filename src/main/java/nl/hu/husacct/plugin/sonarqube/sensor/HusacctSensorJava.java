@@ -1,22 +1,3 @@
-/*
- * Example Plugin for SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 package nl.hu.husacct.plugin.sonarqube.sensor;
 
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
@@ -24,9 +5,8 @@ import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.xmlparser.PomParser;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.log.Loggers;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * must be activated in the Quality profile.
@@ -44,7 +24,7 @@ public class HusacctSensorJava extends HusacctSensor {
     }
 
     @Override
-    protected ArrayList<String> getSourcePaths(SensorContext context) {
+    protected List<String> getSourcePaths(SensorContext context) {
         return fileFinder.getAllJavaSourcePaths(context.fileSystem());
     }
 
@@ -56,19 +36,17 @@ public class HusacctSensorJava extends HusacctSensor {
     @Override
     protected String findHUSACCTFile(SensorContext context) {
         xmlParser = new PomParser();
-        String return_value = null;
+        String returnValue;
         FileFinder fF = new FileFinder();
-        Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
-        for(InputFile xmlFile : allXmlFiles) {
-            if(xmlFile.file().getName().equals("pom.xml")) {
-                return_value = xmlParser.getHussactWorkspaceFile(xmlFile.file());
-            }
+
+        InputFile pomXml = fF.getXmlFile(context, "pom.xml");
+        returnValue = xmlParser.getHussactWorkspaceFile(pomXml.file());
+
+        if(returnValue == null) {
+            throw new WorkspaceFileException("Cannot find Husacct Architecture file!");
         }
-        if(return_value != null) {
-            return return_value;
-        }
-        Loggers.get(getClass()).error("Cannot find HUSACCT file!");
-        throw new WorkspaceFileException("Cannot find HUSACCT file!");
+
+        return returnValue;
     }
 }
 

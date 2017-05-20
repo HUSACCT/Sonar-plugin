@@ -4,6 +4,8 @@ import java.util.Properties;
 
 public class Log4JPropertiesMaker {
 
+    private Log4JPropertiesMaker(){}
+
 
     public static Properties getLog4JProperties() {
         Properties properties = new Properties();

@@ -18,6 +18,7 @@ import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import static nl.hu.husacct.plugin.sonarqube.util.FileFormatter.formatFilePath;
 import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JProperties;
@@ -25,12 +26,13 @@ import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JP
 
 public abstract class HusacctSensor implements Sensor {
 
-    protected final static FileFinder fileFinder = new FileFinder();
+    protected static final FileFinder fileFinder = new FileFinder();
+
     protected XmlParser xmlParser;
 
     protected abstract String getFileSuffix();
 
-    protected abstract ArrayList<String> getSourcePaths(SensorContext context);
+    protected abstract List<String> getSourcePaths(SensorContext context);
 
     protected abstract String findHUSACCTFile(SensorContext context);
 
@@ -47,11 +49,16 @@ public abstract class HusacctSensor implements Sensor {
     }
 
     @Override
+    /* ignore sonar exception logging issue, because the exception gets logged. Sonar doesn't seem to figure that out...
+     also ignore the fact that sonar wants to specific Exception to  be caught. All exceptions need to get caught here
+     so the scan can go on without this plug-in.
+    */
+    @java.lang.SuppressWarnings({"squid:S1166", "squid:S2221"})
     public void execute(SensorContext context) {
         try {
             doExecute(context);
         } catch (Exception e) {
-            Loggers.get(getClass()).error(String.format("error during HUSACCT analysis: %s: %s",e.getClass().toString(), e.getMessage()));
+            Loggers.get(getClass()).error(String.format("error during HUSACCT analysis: %s: %s", e.getClass().toString(), e.getMessage()));
             Loggers.get(getClass()).info("Skipping HUSACCT analysis.");
         }
     }
@@ -72,30 +79,33 @@ public abstract class HusacctSensor implements Sensor {
     }
 
     /**
-     *  Create a sacCommandDTO from the sensorcontext and importfile path.
+     * Create a sacCommandDTO from the sensorcontext and importfile path.
      */
     private SaccCommandDTO createSacCommand(SensorContext context) {
-        ArrayList<String> sourcePaths = getSourcePaths(context);
-        String HUSACCTFile = findHUSACCTFile(context);
-        File SACCFile = fileFinder.getHUSACCTFile(context, HUSACCTFile).file();
+        List<String> sourcePaths = getSourcePaths(context);
+        String husacctFile = findHUSACCTFile(context);
+        File saccfile = fileFinder.getHUSACCTFile(context, husacctFile).file();
 
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
-        saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
-        saccCommandDTO.setSourceCodePaths(sourcePaths);
+        saccCommandDTO.setHusacctWorkspaceFile(saccfile.getAbsolutePath());
+        saccCommandDTO.setSourceCodePaths((ArrayList<String>) sourcePaths);
         return saccCommandDTO;
     }
 
     private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
         // getFrom needs formatting before it can be used to find an InputFile.
         String violationFile = formatFilePath(violation.getFrom()) + getFileSuffix();
-        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile));
+        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.JavaFileWithPath(violationFile));
 
-        NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
-        NewIssueLocation location = issue.newLocation()
-                .on(violationInputFile)
-                .at(violationInputFile.selectLine(violation.getLine()))
-                .message(violation.getMessage());
-        issue.at(location);
-        issue.save();
+        if (violationInputFile != null) {
+            NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
+
+            NewIssueLocation location = issue.newLocation()
+                    .on(violationInputFile)
+                    .at(violationInputFile.selectLine(violation.getLine()))
+                    .message(violation.getMessage());
+            issue.at(location);
+            issue.save();
+        }
     }
 }

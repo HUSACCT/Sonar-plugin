@@ -40,7 +40,7 @@ public class PomParser extends XmlParser {
         if(allProperties.getLength() > 1) {
             for(int counter = 0; counter < allProperties.getLength(); counter++) {
                 Node currentItem = allProperties.item(counter);
-                if(currentItem.getParentNode().getNodeName().equals("project")) {
+                if("project".equals(currentItem.getParentNode().getNodeName())) {
                     return (Element) currentItem;
                 }
             }

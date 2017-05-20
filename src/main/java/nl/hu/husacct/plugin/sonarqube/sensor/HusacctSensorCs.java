@@ -8,7 +8,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Loggers;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class HusacctSensorCs extends HusacctSensor{
 
@@ -18,23 +18,23 @@ public class HusacctSensorCs extends HusacctSensor{
     }
 
     @Override
-    protected ArrayList<String> getSourcePaths(SensorContext context) {
+    protected List<String> getSourcePaths(SensorContext context) {
         return fileFinder.getAllCsSourcePaths(context.fileSystem());
     }
 
     @Override
     protected String findHUSACCTFile(SensorContext context ) {
         xmlParser = new HusacctPropertiesXmlParser();
-        String return_value = null;
+        String returnValue = null;
         FileFinder fF = new FileFinder();
         Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
         for(InputFile xmlFile : allXmlFiles) {
-            if(xmlFile.file().getName().equals("HUSACCT.properties.xml")) {
-                return_value = xmlParser.getHussactWorkspaceFile(xmlFile.file());
+            if("HUSACCT.properties.xml".equals(xmlFile.file().getName())) {
+                returnValue = xmlParser.getHussactWorkspaceFile(xmlFile.file());
             }
         }
-        if(return_value != null) {
-            return return_value;
+        if(returnValue != null) {
+            return returnValue;
         }
         Loggers.get(getClass()).error("Cannot find HUSACCT file!");
         throw new WorkspaceFileException("Cannot find HUSACCT file!");
