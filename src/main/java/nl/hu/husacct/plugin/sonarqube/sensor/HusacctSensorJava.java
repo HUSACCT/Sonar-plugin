@@ -24,7 +24,6 @@ import husacct.externalinterface.SaccCommandDTO;
 import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
-import nl.hu.husacct.plugin.sonarqube.util.DummyImportFile;
 import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
 import nl.hu.husacct.plugin.sonarqube.util.PomParser;
@@ -51,7 +50,6 @@ public class HusacctSensorJava implements Sensor {
 
     private final static FileFinder fileFinder = new FileFinder();
     private final static PomParser pomParser = new PomParser();
-    private final static DummyImportFile dummyImport = new DummyImportFile();
 
     @Override
     public void describe(SensorDescriptor descriptor) {
