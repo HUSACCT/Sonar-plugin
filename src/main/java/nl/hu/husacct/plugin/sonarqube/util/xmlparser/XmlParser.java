@@ -1,4 +1,4 @@
-package nl.hu.husacct.plugin.sonarqube.util;
+package nl.hu.husacct.plugin.sonarqube.util.xmlparser;
 
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
 import org.sonar.api.utils.log.Loggers;

@@ -6,7 +6,7 @@ import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
 import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
-import nl.hu.husacct.plugin.sonarqube.util.XmlParser;
+import nl.hu.husacct.plugin.sonarqube.util.xmlparser.XmlParser;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
