@@ -25,9 +25,6 @@ import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JP
 
 public class HusacctSensorCs extends HusacctSensor{
 
-
-    private final static HusacctPropertiesXmlParser xmlParser = new HusacctPropertiesXmlParser();
-
     @Override
     protected String getFileSuffix() {
         return ".cs";
@@ -40,12 +37,13 @@ public class HusacctSensorCs extends HusacctSensor{
 
     @Override
     protected String findHUSACCTFile(SensorContext context ) {
+        xmlParser = new HusacctPropertiesXmlParser();
         String return_value = null;
         FileFinder fF = new FileFinder();
         Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
         for(InputFile xmlFile : allXmlFiles) {
             if(xmlFile.file().getName().equals("HUSACCT.properties.xml")) {
-                return_value = xmlParser.getHUSACCTWorkspaceFileFromHusacctPropertiesXml(xmlFile.file());
+                return_value = xmlParser.getHussactWorkspaceFile(xmlFile.file());
             }
         }
         if(return_value != null) {

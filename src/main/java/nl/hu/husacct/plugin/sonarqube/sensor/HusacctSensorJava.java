@@ -47,7 +47,6 @@ import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JP
  * must be activated in the Quality profile.
  */
 public class HusacctSensorJava extends HusacctSensor {
-    private final static PomParser pomParser = new PomParser();
 
     @Override
     protected String getLanguageKey() {
@@ -71,12 +70,13 @@ public class HusacctSensorJava extends HusacctSensor {
      */
     @Override
     protected String findHUSACCTFile(SensorContext context) {
+        xmlParser = new PomParser();
         String return_value = null;
         FileFinder fF = new FileFinder();
         Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
         for(InputFile xmlFile : allXmlFiles) {
             if(xmlFile.file().getName().equals("pom.xml")) {
-                return_value = pomParser.getHUSACCTWorkspaceFileFromPom(xmlFile.file());
+                return_value = xmlParser.getHussactWorkspaceFile(xmlFile.file());
             }
         }
         if(return_value != null) {

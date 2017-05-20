@@ -6,6 +6,7 @@ import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
 import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
 import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
+import nl.hu.husacct.plugin.sonarqube.util.XmlParser;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -25,6 +26,7 @@ import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JP
 public abstract class HusacctSensor implements Sensor {
 
     protected final static FileFinder fileFinder = new FileFinder();
+    protected XmlParser xmlParser;
 
     protected abstract String getFileSuffix();
 
