@@ -67,9 +67,16 @@ public class HusacctSensorJava implements Sensor {
     public void execute(SensorContext context) {
         // create dummy importfile otherwise HUSACCT will not work.
         // file is not needed because Sonar keeps track of all the current issues, and refreshes them accordingly.
-        String emptyImportFile = dummyImport.createImportFile(context);
+        try {
+            doExecute(context);
+        } catch (Exception e) {
+            Loggers.get(getClass()).error(String.format("error during HUSACCT analysis: %s: %s",e.getClass().toString(), e.getMessage()));
+            Loggers.get(getClass()).info("Skipping HUSACCT analysis.");
+        }
+    }
 
-        SaccCommandDTO saccCommandDTO = createSacCommand(context, emptyImportFile);
+    private void doExecute(SensorContext context) {
+        SaccCommandDTO saccCommandDTO = createSacCommand(context);
         ExternalServiceProvider externalServiceProvider = ExternalServiceProvider.getInstance(getLog4JProperties());
         ViolationImExportDTO[] allViolations = externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO)
                 .getAllViolations();
@@ -81,8 +88,6 @@ public class HusacctSensorJava implements Sensor {
         for (ViolationImExportDTO violation : allViolations) {
             createIssueFromViolation(context, violation);
         }
-
-        dummyImport.removeDummyImportFile(emptyImportFile);
     }
 
     private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
@@ -103,9 +108,8 @@ public class HusacctSensorJava implements Sensor {
      *  Create a sacCommandDTO from the sensorcontext and importfile path.
      *  finds all paths with java code @see {@link FileFinder#getAllJavaSourcePaths(FileSystem)}
      *  finds the HUSACCT xml file @see {@link #findHUSACCTFile(SensorContext)}
-     * @param importFile absolute path to import file with old violations
      */
-    private SaccCommandDTO createSacCommand(SensorContext context, String importFile) {
+    private SaccCommandDTO createSacCommand(SensorContext context) {
         ArrayList<String> javaPaths = fileFinder.getAllJavaSourcePaths(context.fileSystem());
         String HUSACCTFile = findHUSACCTFile(context);
         File SACCFile = fileFinder.getHUSACCTFile(context, HUSACCTFile).file();
@@ -113,7 +117,6 @@ public class HusacctSensorJava implements Sensor {
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
         saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
         saccCommandDTO.setSourceCodePaths(javaPaths);
-        saccCommandDTO.setImportFilePreviousViolations(importFile);
         return saccCommandDTO;
     }
 
