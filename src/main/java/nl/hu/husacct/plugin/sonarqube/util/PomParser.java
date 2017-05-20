@@ -27,7 +27,7 @@ public class PomParser {
             document = dBuilder.parse(xmlFile);
         } catch (IOException | ParserConfigurationException | SAXException e ) {
             Loggers.get(getClass()).error(String.format("Error reading pom.xml: %s", e.getMessage()));
-            throw new RuntimeException(e);
+            throw new WorkspaceFileException(e);
         }
         String workspacePath;
         Element mavenPlugin = findMavenPlugin(document);
