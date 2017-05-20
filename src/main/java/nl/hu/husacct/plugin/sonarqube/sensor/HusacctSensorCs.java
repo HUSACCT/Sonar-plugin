@@ -23,78 +23,23 @@ import java.util.ArrayList;
 import static nl.hu.husacct.plugin.sonarqube.util.FileFormatter.formatFilePath;
 import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JProperties;
 
-public class HusacctSensorCs implements Sensor{
+public class HusacctSensorCs extends HusacctSensor{
 
-    private final static FileFinder fileFinder = new FileFinder();
+
     private final static HusacctPropertiesXmlParser xmlParser = new HusacctPropertiesXmlParser();
 
     @Override
-    public void describe(SensorDescriptor descriptor) {
-        descriptor.name("HUSACCT violations export to SonarQube");
-        // optimisation to disable execution of sensor if project does
-        // not contain Java files or if the example rule is not activated
-        // in the Quality profile
-        descriptor.onlyOnLanguage("cs");
-        descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY);
+    protected String getFileSuffix() {
+        return ".cs";
     }
 
     @Override
-    public void execute(SensorContext context) {
-        // create dummy importfile otherwise HUSACCT will not work.
-        // file is not needed because Sonar keeps track of all the current issues, and refreshes them accordingly.
-
-        SaccCommandDTO saccCommandDTO = createSacCommand(context);
-        ExternalServiceProvider externalServiceProvider = ExternalServiceProvider.getInstance(getLog4JProperties());
-        ViolationImExportDTO[] allViolations = externalServiceProvider.performSoftwareArchitectureComplianceCheck(saccCommandDTO)
-                .getAllViolations();
-
-
-        Loggers.get(getClass()).info("HUSACCT finished, starting to creating sonar issues.");
-        Loggers.get(getClass()).info(String.format("Found %d issues", allViolations.length));
-
-        for (ViolationImExportDTO violation : allViolations) {
-            createIssueFromViolation(context, violation);
-        }
-    }
-    //TODO: create util function.
-    private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
-        // getFrom needs formatting before it can be used to find an InputFile.
-        String violationFile = formatFilePath(violation.getFrom()) + ".cs";
-        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile));
-
-        NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
-        NewIssueLocation location = issue.newLocation()
-                .on(violationInputFile)
-                .at(violationInputFile.selectLine(violation.getLine()))
-                .message(violation.getMessage());
-        issue.at(location);
-        issue.save();
+    protected ArrayList<String> getSourcePaths(SensorContext context) {
+        return fileFinder.getAllCsSourcePaths(context.fileSystem());
     }
 
-    /**
-     *  Create a sacCommandDTO from the sensorcontext and importfile path.
-     *  finds all paths with java code @see {@link FileFinder#getAllJavaSourcePaths(FileSystem)}
-     *  finds the HUSACCT xml file @see {@link #findHUSACCTFile(SensorContext)}
-     */
-    //TODO: create util function.
-    private SaccCommandDTO createSacCommand(SensorContext context) {
-        ArrayList<String> csPaths = fileFinder.getAllCsSourcePaths(context.fileSystem());
-        String HUSACCTFile = findHUSACCTFile(context);
-        File SACCFile = fileFinder.getHUSACCTFile(context, HUSACCTFile).file();
-
-        SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
-        saccCommandDTO.setHusacctWorkspaceFile(SACCFile.getAbsolutePath());
-        saccCommandDTO.setSourceCodePaths(csPaths);
-        return saccCommandDTO;
-    }
-
-    /**
-     * Searches the HUSACCT workspace file fromd different sources
-     * for c#: look for the HUSACCT.properties.xml file with a element called workspace.
-     * @return absolute path to the file
-     */
-    // TODO: create util function.
-    private String findHUSACCTFile(SensorContext context ) {
+    @Override
+    protected String findHUSACCTFile(SensorContext context ) {
         String return_value = null;
         FileFinder fF = new FileFinder();
         Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
@@ -108,5 +53,10 @@ public class HusacctSensorCs implements Sensor{
         }
         Loggers.get(getClass()).error("Cannot find HUSACCT file!");
         throw new WorkspaceFileException("Cannot find HUSACCT file!");
+    }
+
+    @Override
+    protected String getLanguageKey() {
+        return "cs";
     }
 }
