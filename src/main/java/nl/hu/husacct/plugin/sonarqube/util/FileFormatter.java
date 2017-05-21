@@ -9,8 +9,7 @@ public class FileFormatter {
     private FileFormatter() {}
 
     public static String formatFilePath(String file) {
-        String returnValue = file.replace('.', File.separatorChar);
-        returnValue = returnValue.replace('\\', File.separatorChar);
+        String returnValue = file.replace('\\', File.separatorChar);
         returnValue = returnValue.replace('/', File.separatorChar);
         return returnValue;
     }

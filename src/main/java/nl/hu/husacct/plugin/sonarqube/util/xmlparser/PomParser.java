@@ -1,7 +1,6 @@
 package nl.hu.husacct.plugin.sonarqube.util.xmlparser;
 
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
-import nl.hu.husacct.plugin.sonarqube.util.FileFormatter;
 import org.sonar.api.utils.log.Loggers;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,13 +15,13 @@ public class PomParser extends XmlParser {
         Element mavenPlugin = findMavenPlugin(document);
         if(mavenPlugin != null) {
             workspacePath = getWorkspaceContent(mavenPlugin);
-            return FileFormatter.formatWorkspaceFile(workspacePath);
+            return workspacePath;
         }
 
         Element mavenProperties = findMavenProperties(document);
         if(mavenProperties != null) {
             workspacePath = getWorkspaceContent(mavenProperties);
-            return FileFormatter.formatWorkspaceFile(workspacePath);
+            return workspacePath;
         }
 
         Loggers.get(getClass()).warn("Cannot find HUSACCT architecture file location inside pom.xml");

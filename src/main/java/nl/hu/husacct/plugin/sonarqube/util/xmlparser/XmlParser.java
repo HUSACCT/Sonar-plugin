@@ -1,6 +1,7 @@
 package nl.hu.husacct.plugin.sonarqube.util.xmlparser;
 
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
+import nl.hu.husacct.plugin.sonarqube.util.FileFormatter;
 import org.sonar.api.utils.log.Loggers;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,7 +30,7 @@ public abstract class XmlParser {
             throw new WorkspaceFileException(e);
         }
 
-        return findWorkspaceFile(document.getDocumentElement());
+        return FileFormatter.formatWorkspaceFile(findWorkspaceFile(document.getDocumentElement()));
     }
 
     protected String getWorkspaceContent(Element parentElement) {
