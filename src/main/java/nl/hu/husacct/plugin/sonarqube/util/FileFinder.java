@@ -1,5 +1,6 @@
 package nl.hu.husacct.plugin.sonarqube.util;
 
+import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -39,8 +40,11 @@ public class FileFinder {
         Loggers.get(getClass()).debug(String.format("Start looking for sacc file: %s", fileName));
         FileSystem fs = context.fileSystem();
         InputFile husacctfile = fs.inputFile(new FilePredicates.FileWithName(fileName));
-        Loggers.get(getClass()).debug(String.format("Found architecture file: %s", husacctfile.absolutePath()));
-        return husacctfile;
+        if(husacctfile != null) {
+            Loggers.get(getClass()).debug(String.format("Found architecture file: %s", husacctfile.absolutePath()));
+            return husacctfile;
+        }
+        throw new WorkspaceFileException(String.format("Cannot find Husacct Sac file: %s", fileName));
     }
 
     public Iterable<InputFile> getAllXmlFiles(SensorContext context) {

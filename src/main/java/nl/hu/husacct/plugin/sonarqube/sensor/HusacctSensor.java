@@ -98,7 +98,7 @@ public abstract class HusacctSensor implements Sensor {
     private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
         // getFrom needs formatting before it can be used to find an InputFile.
         String violationFile = formatFilePath(violation.getFrom()) + getFileSuffix();
-        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile, getFileSuffix()));
+        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.FileWithPath(violationFile, getFileSuffix()));
 
         if (violationInputFile != null) {
             NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));

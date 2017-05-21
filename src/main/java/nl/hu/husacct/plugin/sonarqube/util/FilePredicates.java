@@ -19,10 +19,13 @@ public class FilePredicates {
         }
     }
 
-    public static class fileWithPath implements  FilePredicate {
+    public static class FileWithPath implements  FilePredicate {
         private String absolutePath;
         private String suffix;
-        public fileWithPath(String absolutePath, String suffix) { this.absolutePath = absolutePath; this.suffix = suffix;}
+        public FileWithPath(String absolutePath, String suffix) {
+            this.absolutePath = absolutePath;
+            this.suffix = suffix;
+        }
 
         @Override
         public boolean apply(InputFile inputFile) {
