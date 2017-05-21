@@ -20,6 +20,7 @@
 package nl.hu.husacct.plugin.sonarqube;
 
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
+import nl.hu.husacct.plugin.sonarqube.sensor.HusacctSensorCs;
 import nl.hu.husacct.plugin.sonarqube.sensor.HusacctSensorJava;
 import org.sonar.api.Plugin;
 
@@ -32,5 +33,6 @@ public class HUSACCTSonarqubePlugin implements Plugin {
   public void define(Context context) {
     context.addExtension(HUSACCTRulesDefinitionFromXML.class);
     context.addExtension(HusacctSensorJava.class);
+    context.addExtension(HusacctSensorCs.class);
   }
 }

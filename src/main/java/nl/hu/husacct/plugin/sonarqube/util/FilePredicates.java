@@ -19,16 +19,16 @@ public class FilePredicates {
         }
     }
 
-    public static class JavaFileWithPath implements  FilePredicate {
+    public static class fileWithPath implements  FilePredicate {
         private String absolutePath;
-        public JavaFileWithPath(String absolutePath) { this.absolutePath = absolutePath;}
+        private String suffix;
+        public fileWithPath(String absolutePath, String suffix) { this.absolutePath = absolutePath; this.suffix = suffix;}
 
         @Override
         public boolean apply(InputFile inputFile) {
             String inputFileAbsolutePath = FileFormatter.formatFilePath(
-                    inputFile.absolutePath().substring(0, inputFile.absolutePath().length() -5))
-                    + ".java";
-            if(inputFileAbsolutePath.endsWith(absolutePath)) {
+                    inputFile.absolutePath().substring(0, inputFile.absolutePath().lastIndexOf('.')));
+            if(inputFileAbsolutePath.endsWith(absolutePath + suffix)) {
                 return true;
             }
             return false;

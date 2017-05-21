@@ -25,7 +25,7 @@ public class FileFinder {
 
     public List<String> getAllCsSourcePaths(FileSystem fs) {
         ArrayList<String> javaPaths = new ArrayList<>();
-        for (InputFile file : fs.inputFiles(fs.predicates().hasLanguage("cz"))) {
+        for (InputFile file : fs.inputFiles(fs.predicates().hasLanguage("cs"))) {
             String path = file.path().toString().substring(0, file.path().toString().lastIndexOf(File.separator));
             if (!javaPaths.contains(path)) {
                 javaPaths.add(path);
@@ -36,9 +36,10 @@ public class FileFinder {
     }
 
     public InputFile getHUSACCTFile(SensorContext context, String fileName) {
+        Loggers.get(getClass()).debug(String.format("Start looking for sacc file: %s", fileName));
         FileSystem fs = context.fileSystem();
         InputFile husacctfile = fs.inputFile(new FilePredicates.FileWithName(fileName));
-        Loggers.get(getClass()).debug(String.format("Found architecture file: %s", husacctfile));
+        Loggers.get(getClass()).debug(String.format("Found architecture file: %s", husacctfile.absolutePath()));
         return husacctfile;
     }
 

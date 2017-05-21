@@ -34,7 +34,7 @@ public class HusacctSensorJava extends HusacctSensor {
      * @return absolute path to the file
      */
     @Override
-    protected String findHUSACCTFile(SensorContext context) {
+    protected String getHusacctSaccFile(SensorContext context) {
         xmlParser = new PomParser();
         String returnValue;
         FileFinder fF = new FileFinder();

@@ -2,12 +2,12 @@ package nl.hu.husacct.plugin.sonarqube.sensor;
 
 
 import nl.hu.husacct.plugin.sonarqube.exceptions.WorkspaceFileException;
-import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
+import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
 import nl.hu.husacct.plugin.sonarqube.util.xmlparser.HusacctPropertiesXmlParser;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Loggers;
 
+import java.io.File;
 import java.util.List;
 
 public class HusacctSensorCs extends HusacctSensor{
@@ -23,16 +23,12 @@ public class HusacctSensorCs extends HusacctSensor{
     }
 
     @Override
-    protected String findHUSACCTFile(SensorContext context ) {
+    protected String getHusacctSaccFile(SensorContext context ) {
         xmlParser = new HusacctPropertiesXmlParser();
-        String returnValue = null;
-        FileFinder fF = new FileFinder();
-        Iterable<InputFile> allXmlFiles = fF.getAllXmlFiles(context);
-        for(InputFile xmlFile : allXmlFiles) {
-            if("HUSACCT.properties.xml".equals(xmlFile.file().getName())) {
-                returnValue = xmlParser.getHussactWorkspaceFile(xmlFile.file());
-            }
-        }
+        String returnValue;
+        File husacctProperties = context.fileSystem().inputFile(new FilePredicates.FileWithName("HUSACCT.properties.xml")).file();
+        returnValue = xmlParser.getHussactWorkspaceFile(husacctProperties);
+
         if(returnValue != null) {
             return returnValue;
         }

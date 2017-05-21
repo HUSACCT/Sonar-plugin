@@ -34,7 +34,7 @@ public abstract class HusacctSensor implements Sensor {
 
     protected abstract List<String> getSourcePaths(SensorContext context);
 
-    protected abstract String findHUSACCTFile(SensorContext context);
+    protected abstract String getHusacctSaccFile(SensorContext context);
 
     protected abstract String getLanguageKey();
 
@@ -45,7 +45,7 @@ public abstract class HusacctSensor implements Sensor {
         // not contain Java files or if the example rule is not activated
         // in the Quality profile
         descriptor.onlyOnLanguage(getLanguageKey());
-        descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY);
+        descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY+getLanguageKey());
     }
 
     @Override
@@ -56,6 +56,7 @@ public abstract class HusacctSensor implements Sensor {
     @java.lang.SuppressWarnings({"squid:S1166", "squid:S2221"})
     public void execute(SensorContext context) {
         try {
+            Loggers.get(getClass()).info("Starting Husacct analysis.");
             doExecute(context);
         } catch (Exception e) {
             Loggers.get(getClass()).error(String.format("error during HUSACCT analysis: %s: %s", e.getClass().toString(), e.getMessage()));
@@ -79,11 +80,13 @@ public abstract class HusacctSensor implements Sensor {
     }
 
     /**
-     * Create a sacCommandDTO from the sensorcontext and importfile path.
+     * Create a sacCommandDTO from the sensorcontext.
      */
     private SaccCommandDTO createSacCommand(SensorContext context) {
         List<String> sourcePaths = getSourcePaths(context);
-        String husacctFile = findHUSACCTFile(context);
+        Loggers.get(getClass()).debug(String.format("Found %d sourcepaths basedir: %s", sourcePaths.size(), context.fileSystem().baseDir().getAbsolutePath()));
+
+        String husacctFile = getHusacctSaccFile(context);
         File saccfile = fileFinder.getHUSACCTFile(context, husacctFile).file();
 
         SaccCommandDTO saccCommandDTO = new SaccCommandDTO();
@@ -95,7 +98,7 @@ public abstract class HusacctSensor implements Sensor {
     private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
         // getFrom needs formatting before it can be used to find an InputFile.
         String violationFile = formatFilePath(violation.getFrom()) + getFileSuffix();
-        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.JavaFileWithPath(violationFile));
+        InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.fileWithPath(violationFile, getFileSuffix()));
 
         if (violationInputFile != null) {
             NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));

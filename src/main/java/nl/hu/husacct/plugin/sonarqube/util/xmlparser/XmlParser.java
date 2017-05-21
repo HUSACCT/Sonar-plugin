@@ -38,7 +38,8 @@ public abstract class XmlParser {
             Loggers.get(getClass()).warn(String.format("Cannot find workspace path node inside %s", parentElement.getTagName()));
             throw new WorkspaceFileException(String.format("Cannot find workspace path node inside %s", parentElement.getTagName()));
         }
-        Loggers.get(getClass()).info("Found HUSACCT architecture file");
-        return workspacePath.item(0).getTextContent();
+        String returnValue = workspacePath.item(0).getTextContent();
+        Loggers.get(getClass()).info(String.format("Found name of HUSACCT architecture file %s", returnValue));
+        return returnValue;
     }
 }
