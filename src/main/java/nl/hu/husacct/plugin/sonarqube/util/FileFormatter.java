@@ -14,6 +14,13 @@ public class FileFormatter {
         return returnValue;
     }
 
+    public static String formatFilePathWithDots(String file) {
+        String returnValue = file.replace('\\', File.separatorChar);
+        returnValue = returnValue.replace('/', File.separatorChar);
+        returnValue = returnValue.replace('.', File.separatorChar);
+        return returnValue;
+    }
+
     public static String formatWorkspaceFile(String workspacePath) {
         String pathWithoutSuffix;
         if(workspacePath.endsWith(".xml")) {

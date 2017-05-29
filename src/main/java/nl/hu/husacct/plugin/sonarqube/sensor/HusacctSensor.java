@@ -5,6 +5,7 @@ import husacct.externalinterface.SaccCommandDTO;
 import husacct.externalinterface.ViolationImExportDTO;
 import nl.hu.husacct.plugin.sonarqube.rules.HUSACCTRulesDefinitionFromXML;
 import nl.hu.husacct.plugin.sonarqube.util.FileFinder;
+import nl.hu.husacct.plugin.sonarqube.util.FileFormatter;
 import nl.hu.husacct.plugin.sonarqube.util.FilePredicates;
 import nl.hu.husacct.plugin.sonarqube.util.xmlparser.XmlParser;
 import org.sonar.api.batch.fs.InputFile;
@@ -20,7 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static nl.hu.husacct.plugin.sonarqube.util.FileFormatter.formatFilePath;
 import static nl.hu.husacct.plugin.sonarqube.util.Log4JPropertiesMaker.getLog4JProperties;
 
 
@@ -97,11 +97,11 @@ public abstract class HusacctSensor implements Sensor {
 
     private void createIssueFromViolation(SensorContext context, ViolationImExportDTO violation) {
         // getFrom needs formatting before it can be used to find an InputFile.
-        String violationFile = formatFilePath(violation.getFrom()) + getFileSuffix();
+        //String violationFile = formatFilePath(violation.getFrom());
+        String violationFile = FileFormatter.formatFilePathWithDots(violation.getFrom()) + getFileSuffix();
         InputFile violationInputFile = context.fileSystem().inputFile(new FilePredicates.FileWithPath(violationFile, getFileSuffix()));
-
         if (violationInputFile != null) {
-            NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY, violation.getRuleType()));
+            NewIssue issue = context.newIssue().forRule(RuleKey.of(HUSACCTRulesDefinitionFromXML.REPOSITORY + getLanguageKey(), violation.getRuleType()));
 
             NewIssueLocation location = issue.newLocation()
                     .on(violationInputFile)

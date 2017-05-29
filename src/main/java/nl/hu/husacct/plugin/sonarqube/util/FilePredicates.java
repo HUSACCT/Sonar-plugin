@@ -29,9 +29,9 @@ public class FilePredicates {
 
         @Override
         public boolean apply(InputFile inputFile) {
-            String inputFileAbsolutePath = FileFormatter.formatFilePath(
-                    inputFile.absolutePath().substring(0, inputFile.absolutePath().lastIndexOf('.')));
-            if(inputFileAbsolutePath.endsWith(absolutePath + suffix)) {
+            String inputFileAbsolutePath = FileFormatter.formatFilePath(inputFile.absolutePath().substring(0, inputFile.absolutePath().lastIndexOf('.')));
+            inputFileAbsolutePath = inputFileAbsolutePath + suffix;
+            if(inputFileAbsolutePath.endsWith(absolutePath)) {
                 return true;
             }
             return false;
