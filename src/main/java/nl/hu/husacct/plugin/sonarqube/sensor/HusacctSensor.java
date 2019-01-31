@@ -45,7 +45,7 @@ public abstract class HusacctSensor implements Sensor {
         // not contain Java files or if the example rule is not activated
         // in the Quality profile
         descriptor.onlyOnLanguage(getLanguageKey());
-        descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY+getLanguageKey());
+        descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY + getLanguageKey());
     }
 
     @Override
@@ -59,6 +59,7 @@ public abstract class HusacctSensor implements Sensor {
             Loggers.get(getClass()).info("Starting Husacct analysis.");
             doExecute(context);
         } catch (Exception e) {
+            e.printStackTrace();
             Loggers.get(getClass()).error(String.format("error during HUSACCT analysis: %s: %s", e.getClass().toString(), e.getMessage()));
             Loggers.get(getClass()).info("Skipping HUSACCT analysis.");
         }

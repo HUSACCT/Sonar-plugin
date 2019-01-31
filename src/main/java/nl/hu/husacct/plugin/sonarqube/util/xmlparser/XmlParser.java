@@ -15,12 +15,12 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class XmlParser {
-    private static final String HUSACCTWORKSPACENODE = "workspacePath";
+    private static final String HUSACCT_WORKSPACE_NODE = "workspacePath";
 
     protected abstract String findWorkspaceFile(Element document);
 
     public String getHussactWorkspaceFile(File xmlFile) {
-        Document document = null;
+        Document document;
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -34,7 +34,7 @@ public abstract class XmlParser {
     }
 
     protected String getWorkspaceContent(Element parentElement) {
-        NodeList workspacePath = parentElement.getElementsByTagName(HUSACCTWORKSPACENODE);
+        NodeList workspacePath = parentElement.getElementsByTagName(HUSACCT_WORKSPACE_NODE);
         if (workspacePath.getLength() == 0) {
             Loggers.get(getClass()).warn(String.format("Cannot find workspace path node inside %s", parentElement.getTagName()));
             throw new WorkspaceFileException(String.format("Cannot find workspace path node inside %s", parentElement.getTagName()));

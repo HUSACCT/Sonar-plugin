@@ -4,7 +4,7 @@
 
     <groupId>io.github.husacct.plugin</groupId>
     <artifactId>HUSACCT-sonar</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <name>HUSACCT Plugin for SonarQube</name>
     <description>Create issues in SonarQube based on the violations detected by HUSACCT</description>
@@ -151,7 +151,7 @@
             <plugin>
                 <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
                 <artifactId>sonar-packaging-maven-plugin</artifactId>
-                <version>1.16</version>
+                <version>1.18.0.372</version>
                 <extensions>true</extensions>
                 <configuration>
                     <pluginClass>nl.hu.husacct.plugin.sonarqube.HUSACCTSonarqubePlugin</pluginClass>

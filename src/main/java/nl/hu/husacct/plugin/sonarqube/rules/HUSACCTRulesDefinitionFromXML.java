@@ -8,16 +8,15 @@ import java.nio.charset.StandardCharsets;
 
 public final class HUSACCTRulesDefinitionFromXML implements RulesDefinition {
 
-    private static final String PATH_TO_RULES_XML = "/HUSACCTRules.xml";
-
     public static final String REPOSITORY = "HUSACCT";
+    private static final String PATH_TO_RULES_XML = "/HUSACCTRules.xml";
 
     protected String rulesDefinitionFilePath() {
         return PATH_TO_RULES_XML;
     }
 
     private void defineRulesForLanguage(Context context, String repositoryKey, String repositoryName, String... languageKeys) {
-        for(String language : languageKeys) {
+        for (String language : languageKeys) {
             NewRepository repository = context.createRepository(repositoryKey + language, language).setName(repositoryName);
             InputStream rulesXml = this.getClass().getResourceAsStream(rulesDefinitionFilePath());
             if (rulesXml != null) {
@@ -30,7 +29,6 @@ public final class HUSACCTRulesDefinitionFromXML implements RulesDefinition {
 
     @Override
     public void define(Context context) {
-
         defineRulesForLanguage(context, REPOSITORY, REPOSITORY, "java", "cs");
     }
 
