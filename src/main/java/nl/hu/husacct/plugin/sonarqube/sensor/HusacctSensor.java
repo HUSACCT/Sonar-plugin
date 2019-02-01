@@ -59,7 +59,6 @@ public abstract class HusacctSensor implements Sensor {
             Loggers.get(getClass()).info("Starting Husacct analysis.");
             doExecute(context);
         } catch (Exception e) {
-            e.printStackTrace();
             Loggers.get(getClass()).error(String.format("error during HUSACCT analysis: %s: %s", e.getClass().toString(), e.getMessage()));
             Loggers.get(getClass()).info("Skipping HUSACCT analysis.");
         }
