@@ -35,9 +35,11 @@
 2. Make sure you don't have the SonarQube paramater "sonar.language" set to java. Otherwise, SonarQube will ignore all XML files.
 3. Add a property to pom.xml with the path to the workspace file (relative to src/main/java).
 If your workspace is located at src/main/java/workspace.xml
-`<properties>
-         <sonar.husacct.workspacePath>workspace.xml</sonar.husacct.workspacePath>
- </properties>`
+```
+<properties>
+        <sonar.husacct.workspacePath>workspace.xml</sonar.husacct.workspacePath>
+</properties>
+```
 4. Add the SonarQube [maven plugin](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Maven)
 5. Run the following command to start the scan: mvn sonar:sonar 
 
@@ -47,11 +49,13 @@ If your workspace is located at src/main/java/workspace.xml
 4. Add the SonarQube [gradle plugin](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle)
 3. Add a property to the build.gradle SonarQube plugin with the path to the workspace file (relative to src/main/java).
 If your workspace is located at src/main/java/workspace.xml
-`sonarqube {
-     properties {
-         property 'sonar.husacct.workspacePath', 'workspace.xml'
-     }
- }`
+```
+sonarqube {
+    properties {
+        property 'sonar.husacct.workspacePath', 'workspace.xml'
+    }
+}
+```
 5. Run the following command to start the scan: gradle sonarqube 
 
 
