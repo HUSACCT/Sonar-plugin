@@ -10,7 +10,7 @@ import org.sonar.api.utils.log.Loggers;
 
 import java.util.List;
 
-public class HusacctSensorCs extends HusacctSensor{
+public class HusacctSensorCs extends HusacctSensor {
 
     @Override
     protected String getFileSuffix() {
@@ -23,15 +23,15 @@ public class HusacctSensorCs extends HusacctSensor{
     }
 
     @Override
-    protected String getHusacctSaccFile(SensorContext context ) {
+    protected String getHusacctSaccFile(SensorContext context) {
         xmlParser = new HusacctPropertiesXmlParser();
         String returnValue = null;
         InputFile husacctProperties = context.fileSystem().inputFile(new FilePredicates.FileWithName("HUSACCT.properties.xml"));
-        if(husacctProperties != null) {
+        if (husacctProperties != null) {
             returnValue = xmlParser.getHussactWorkspaceFile(husacctProperties.file());
         }
 
-        if(returnValue != null) {
+        if (returnValue != null) {
             return returnValue;
         }
         Loggers.get(getClass()).error("Cannot find HUSACCT file!");

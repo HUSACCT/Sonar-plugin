@@ -45,7 +45,7 @@ public abstract class HusacctSensor implements Sensor {
         // not contain Java files or if the example rule is not activated
         // in the Quality profile
         descriptor.onlyOnLanguage(getLanguageKey());
-        descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY+getLanguageKey());
+        descriptor.createIssuesForRuleRepositories(HUSACCTRulesDefinitionFromXML.REPOSITORY + getLanguageKey());
     }
 
     @Override

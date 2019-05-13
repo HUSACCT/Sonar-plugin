@@ -3,7 +3,7 @@
 ## Requirements
 - SonarQube version 5.6 or higher
 - SonarXML (plug-in installed on SonarQube) version 1.4.2 or higher
-- In case of Java source code: Maven version 3.0 or higher
+- In case of Java source code: Maven version 3.0 or higher or Gradle version 5.0 or higher
 
 ## Installation guide
 
@@ -31,9 +31,32 @@
 4. Run the sonar-scanner.
 
 #### Java (with Maven)
-1. Make sure you don't have the SonarQube paramater "sonar.language" set to java. Otherwise, SonarQube will ignore all XML files.
-2. If you're not using the Husacct maven plug-in, add an element "workspacePath", with the name of your husacct sacc file inside, to your maven properties. (example: workspace.xml)
-3. Add the SonarQube [maven plugin](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Maven)
-4. Run the following command to start the scan: mvn sonar:sonar 
+1. Place the HUSACCT workspace into your src/main/java folder
+2. Make sure you don't have the SonarQube paramater "sonar.language" set to java. Otherwise, SonarQube will ignore all XML files.
+3. Add a property to pom.xml with the path to the workspace file (relative to src/main/java).
+If your workspace is located at src/main/java/workspace.xml
+```
+<properties>
+        <sonar.husacct.workspacePath>workspace.xml</sonar.husacct.workspacePath>
+</properties>
+```
+4. Add the SonarQube [maven plugin](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Maven)
+5. Run the following command to start the scan: mvn sonar:sonar 
+
+#### Java (with Gradle)
+1. Place the HUSACCT workspace into your src/main/java folder
+2. Make sure you don't have the SonarQube paramater "sonar.language" set to java. Otherwise, SonarQube will ignore all XML files.
+4. Add the SonarQube [gradle plugin](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle)
+3. Add a property to the build.gradle SonarQube plugin with the path to the workspace file (relative to src/main/java).
+If your workspace is located at src/main/java/workspace.xml
+```
+sonarqube {
+    properties {
+        property 'sonar.husacct.workspacePath', 'workspace.xml'
+    }
+}
+```
+5. Run the following command to start the scan: gradle sonarqube 
+
 
 

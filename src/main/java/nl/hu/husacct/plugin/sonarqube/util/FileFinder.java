@@ -57,7 +57,7 @@ public class FileFinder {
     }
 
     public InputFile getXmlFile(SensorContext context, String name) {
-        FileSystem fs =context.fileSystem();
+        FileSystem fs = context.fileSystem();
         return fs.inputFile(new FilePredicates.FileWithName(name));
     }
 }
