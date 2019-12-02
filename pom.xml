@@ -27,7 +27,7 @@
         <repository>
             <id>local-repo</id>
             <name>Local Repository</name>
-            <url>file:///${project.basedir}\Resources\repo</url>
+            <url>file:${project.basedir}/Resources/repo</url>
         </repository>
         <!-- Needed for JHotdraw-->
         <repository>
